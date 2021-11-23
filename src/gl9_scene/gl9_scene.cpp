@@ -117,18 +117,18 @@ public:
     }
 
     if (key == GLFW_KEY_W) {
-      scene.camera->position.y -= 1;
+      scene.camera->position.z += 1;
     }
 
     if (key == GLFW_KEY_S) {
-      scene.camera->position.y += 1;
+      scene.camera->position.z -= 1;
     }
 
     if (key == GLFW_KEY_UP) {
-      scene.camera->position.z += 1;
+      scene.camera->position.y += 1;
     }
     if (key == GLFW_KEY_DOWN) {
-      scene.camera->position.z -= 1;
+      scene.camera->position.y -= 1;
     }
   }
 
