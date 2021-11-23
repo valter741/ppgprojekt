@@ -17,7 +17,70 @@ struct Point {
 
 // Bresenham drawing algorithm
 void drawLine(ppgso::Image& framebuffer, Point& from, Point& to) {
-  // TODO: Implement Bresenham drawing algorithm
+
+    if(from.x < to.x && from.y <= to.y){
+        int m_new = 2 * (to.y - from.y);
+        int slope_error_new = m_new-(to.x - from.x);
+        for (int x = from.x, y = from.y; x <= to.x; x++)      //DOPRAVA
+        {
+            //std::cout << "(" << x << "," << y << ")\n";
+            framebuffer.setPixel(x,y,255,255,255);
+
+            slope_error_new += m_new;
+
+            while (slope_error_new >= 0)
+            {
+                y++;
+                slope_error_new  -= 2 * (to.x - from.x);
+            }
+        }
+    }else if (from.x >= to.x && from.y < to.y){
+        int m_new = 2 * (from.x - to.x);
+        int slope_error_new = m_new -(to.y - from.y);
+        for (int x = from.x, y = from.y; y <= to.y; y++)    //DOLE
+        {
+            //std::cout << "(" << x << "," << y << ")\n";
+            framebuffer.setPixel(x, y, 255, 255, 255);
+
+            slope_error_new -= m_new;
+
+            while (slope_error_new <= 0) {
+                x--;
+                slope_error_new += 2 * (to.y - from.y);
+            }
+        }
+    }else if (from.x > to.x && from.y >= to.y){
+        int m_new = 2 * (from.y - to.y);
+        int slope_error_new = m_new-(from.x - to.x);
+        for (int x = from.x, y = from.y; x >= to.x; x--)        //DOLAVA
+        {
+            //std::cout << "(" << x << "," << y << ")\n";
+            framebuffer.setPixel(x,y,255,255,255);
+
+            slope_error_new += m_new;
+
+            while (slope_error_new >= 0)
+            {
+                y--;
+                slope_error_new  -= 2 * (from.x - to.x);
+            }
+        }
+    }else if (from.x <= to.x && from.y > to.y){
+        int m_new = 2 * (to.x - from.x);
+        int slope_error_new = m_new -(from.y - to.y);
+        for (int x = from.x, y = from.y; y >= to.y; y--)    //HORE
+        {
+            //std::cout << "(" << x << "," << y << ")\n";
+            framebuffer.setPixel(x, y, 255, 255, 255);
+
+            slope_error_new -= m_new;
+
+            while (slope_error_new <= 0) {
+                x++;
+                slope_error_new += 2 * (from.y - to.y);
+            }
+        }
+    }
 }
 
 int main()
@@ -27,10 +90,17 @@ int main()
 
   // TODO: Generate star points
   std::vector<Point> points;
+  Point newPoint;
+
+  for(int i = 1; i <= 12; i++) {
+         
+  }
 
   // Draw lines
-  for(unsigned int i = 0; i < points.size() - 1; i++)
+  for(unsigned int i = 0; i < points.size() - 1; i+=2)
     drawLine(framebuffer, points[i], points[i+1]);
+
+  //framebuffer.setPixel(0,0,255,255,255);
 
   // Save the result
   std::cout << "Generating task2_bresenham.bmp file ..." << std::endl;

@@ -35,11 +35,13 @@ public:
   /// \param far - Distance of the far clipping plane
   Camera(float fov = 45.0f, float ratio = 1.0f, float near = 0.1f, float far = 10.0f) {
     // TODO: Initialize perspective projection (hint: glm::perspective)
+    projectionMatrix = glm::perspective(fov, ratio, near, far);
+    update();
   }
 
   /// Recalculate viewMatrix from position, rotation and scale
   void update() {
-    // TODO: Update viewMatrix (hint: glm::lookAt)
+      viewMatrix = glm::lookAt(glm::vec3{0.0f, 20.0f, 20.0f}, glm::vec3{0.0f, 0.0f, 0.0f}, glm::vec3{0.0f, 1.0f, 0.0f});
   }
 };
 
@@ -48,7 +50,11 @@ class Renderable; // Forward declaration for Scene
 using Scene = std::list<std::unique_ptr<Renderable>>; // Type alias
 
 class Renderable {
+
 public:
+
+    int corona = 0;
+    int isCorona = 0;
   // Virtual destructor is needed for abstract interfaces
   virtual ~Renderable() = default;
 
@@ -70,19 +76,49 @@ class Particle final : public Renderable {
   static std::unique_ptr<ppgso::Mesh> mesh;
   static std::unique_ptr<ppgso::Shader> shader;
 
-  // TODO: add more parameters as needed
+  glm::vec3 speed{0,0,0};
+  glm::vec3 color{1,1,1};
+  glm::mat4 modelMatrix;
+  float ttl = 0.0f;
 public:
   /// Construct a new Particle
   /// \param p - Initial position
   /// \param s - Initial speed
   /// \param c - Color of particle
   Particle(glm::vec3 p, glm::vec3 s, glm::vec3 c) {
-    // First particle will initialize resources
+    speed = s;
+    color = c;
+    modelMatrix = glm::translate(modelMatrix, p);
     if (!shader) shader = std::make_unique<ppgso::Shader>(color_vert_glsl, color_frag_glsl);
     if (!mesh) mesh = std::make_unique<ppgso::Mesh>("sphere.obj");
   }
 
   bool update(float dTime, Scene &scene) override {
+      ttl += dTime;
+      modelMatrix = glm::translate(modelMatrix, this->speed);
+      //std::cout << dTime << " ";
+      if(this->corona && !this->isCorona){
+          this->corona = 0;
+          for(int i = 0; i < 10; i++) {
+              glm::vec3 pos = {0, 0, 0};
+              glm::vec3 speed = {this->speed.x * ((rand() % 10) + 15), this->speed.y * ((rand() % 10) + 15),
+                                 this->speed.z * ((rand() % 10) + 15)};
+              glm::vec3 col = {0, 1, 0};
+              glm::vec3 scale = {.2, .2, .2};
+              auto particle = std::make_unique<Particle>(pos, speed, col);
+              particle->isCorona = 1;
+              particle->modelMatrix = modelMatrix;
+              particle->modelMatrix = glm::scale(particle->modelMatrix, scale);
+              scene.push_back(std::move(particle));
+          }
+      }
+
+      if(ttl > 5.0f){
+          return false;
+      }else {
+          return true;
+      }
+
     // TODO: Animate position using speed and dTime.
     // - Return true to keep the object alive
     // - Returning false removes the object from the scene
@@ -91,6 +127,15 @@ public:
 
   void render(const Camera& camera) override {
     // TODO: Render the object
+    shader->use();
+
+    shader->setUniform("ProjectionMatrix", camera.projectionMatrix);
+    shader->setUniform("ViewMatrix", camera.viewMatrix);
+
+    shader->setUniform("OverallColor", color);
+    shader->setUniform("ModelMatrix", modelMatrix);
+
+    mesh->render();
     // - Use the shader
     // - Setup all needed shader inputs
     // - hint: use OverallColor in the color_vert_glsl shader for color
@@ -123,8 +168,20 @@ public:
     // Collect key state in a map
     keys[key] = action;
     if (keys[GLFW_KEY_SPACE]) {
-      // TODO: Add renderable object to the scene
+        std::cout << "SPACE";
+        glm::vec3 pos = {rand()%10-5,rand()%10-5,rand()%10-5};
+        glm::vec3 speed = {((rand() %6)-3)/100.0f,((rand() %6)-3)/100.0f, ((rand() %6)-3)/100.0f};
+        glm::vec3 col = {0.95, 0.82, 0.56};
+        auto particle=std::make_unique<Particle>(pos, speed, col);
+        scene.push_back(std::move(particle));
     }
+    if (keys[GLFW_KEY_C]) {
+          std::cout << "C";
+
+        for(auto& object : scene) {
+            object->corona = 1;
+        }
+      }
   }
 
   void onIdle() override {
@@ -155,6 +212,7 @@ public:
 
     // Render every object in scene
     for(auto& object : scene) {
+      object->update(dTime, scene);
       object->render(camera);
     }
   }

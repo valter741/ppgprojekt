@@ -14,15 +14,15 @@ std::unique_ptr<ppgso::Shader> Asteroid::shader;
 
 Asteroid::Asteroid() {
   // Set random scale speed and rotation
-  scale *= glm::linearRand(1.0f, 3.0f);
+  scale *= glm::linearRand(0.05f, 0.15f);
   speed = {glm::linearRand(-2.0f, 2.0f), glm::linearRand(-5.0f, -10.0f), 0.0f};
   rotation = glm::ballRand(ppgso::PI);
   rotMomentum = glm::ballRand(ppgso::PI);
 
   // Initialize static resources if needed
   if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
-  if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("asteroid.bmp"));
-  if (!mesh) mesh = std::make_unique<ppgso::Mesh>("asteroid.obj");
+  if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("cat.bmp"));
+  if (!mesh) mesh = std::make_unique<ppgso::Mesh>("cat.obj");
 }
 
 bool Asteroid::update(Scene &scene, float dt) {

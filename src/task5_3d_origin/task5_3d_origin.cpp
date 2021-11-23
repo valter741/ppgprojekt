@@ -51,6 +51,32 @@ public:
 
     // Initialize object data buffers
     Cube() {
+        vertices.push_back({0.2, 0, 0});   // 0
+        vertices.push_back({0.2, 0.2, 0});    // 1
+        vertices.push_back({0, 0.2, 0});   // 2
+        vertices.push_back({0, 0, 0});  // 3
+        vertices.push_back({0.2, 0, -0.2});   // 4
+        vertices.push_back({0.2, 0.2, -0.2});  // 5
+        vertices.push_back({0, 0.2, -0.2});  // 6
+        vertices.push_back({0, 0, -0.2}); // 7
+
+        indices.push_back({0, 1, 3});   // front
+        indices.push_back({3, 1, 2});
+
+        indices.push_back({4, 5, 0});   // right
+        indices.push_back({0, 5, 1});
+
+        indices.push_back({7, 6, 4});   // back
+        indices.push_back({4, 6, 5});
+
+        indices.push_back({3, 2, 7});   // left
+        indices.push_back({7, 2, 6});
+
+        indices.push_back({1, 5, 2});   // top
+        indices.push_back({2, 5, 6});
+
+        indices.push_back({4, 0 ,7});   // bottom
+        indices.push_back({7, 0 ,4});
         // Copy data to OpenGL
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
@@ -87,16 +113,24 @@ public:
     // Set the object transformation matrix
     void updateModelMatrix() {
         // Compute transformation by scaling, rotating and then translating the shape
-		 // TODO: Update model matrix: modelMatrix = ... use position, rotation and scale
+        // TODO: Update model matrix: modelMatrix = ... use position, rotation and scale
+        modelMatrix = glm::translate(modelMatrix, this->position);
+        modelMatrix = glm::rotate(modelMatrix, glm::radians(1.0f), this->rotation);
+        modelMatrix = glm::scale(modelMatrix, this->scale);
+
 
     }
 
     void updateViewMatrix(glm::vec3 viewRotation) {
         // Compute transformation by scaling, rotating and then translating the shape
 		// TODO: Update view matrix: modelMatrix = ... use translation -20 in Z and viewRotation
+        glm::vec3 zoomout = {0,0,0};
+        if(viewRotation.x == 0.1f){
+            zoomout = {0,0,-3};
+        }
 
-
-
+        viewMatrix = glm::rotate(viewMatrix, glm::radians(1.0f), viewRotation);
+        viewMatrix = glm::translate(viewMatrix, zoomout);
       }
 
     // Draw polygons
@@ -106,6 +140,9 @@ public:
         program.setUniform("OverallColor", color);
         program.setUniform("ModelMatrix", modelMatrix);
         program.setUniform("ViewMatrix", viewMatrix);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
 
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, (GLsizei) indices.size() * 3, GL_UNSIGNED_INT, 0);
@@ -122,13 +159,35 @@ public:
     OriginWindow() : Window{"task5_3d_origin", SIZE, SIZE} {
 		
 		// TODO: Set axis colors to red,green and blue...and cube color to grey
-
+        axisX.color = {1, 0, 0};
+        axisY.color = {0, 1, 0};
+        axisZ.color = {0, 0, 1};
+        cube.color = {0.5f, 0.5f, 0.5f};
 
         const float scaleMin = 0.03f;
         const float scaleMax = 10.00f;
 
+        axisX.scale = {scaleMax, scaleMin, scaleMin};
+        axisY.scale = {scaleMin, scaleMax, scaleMin};
+        axisZ.scale = {scaleMin, scaleMin, scaleMax};
+
+        axisX.rotation = {0.0000001, 0, 0};
+        axisY.rotation = {0, 00000.1, 0};
+        axisZ.rotation = {0, 0, 00000.1};
+
 		// TODO: Set axis scaling in X,Y,Z directions...hint use scaleMin in tangent directions and scaleMax in the axis direction
 
+        viewRotation.x = 0.1f;
+        viewRotation.y = 0.1f;
+        viewRotation.z = 0.1f;
+
+        cube.updateViewMatrix(viewRotation);
+        axisX.updateViewMatrix(viewRotation);
+        axisY.updateViewMatrix(viewRotation);
+        axisZ.updateViewMatrix(viewRotation);
+        axisX.updateModelMatrix();
+        axisY.updateModelMatrix();
+        axisZ.updateModelMatrix();
     }
 
     void onIdle() {
@@ -149,6 +208,13 @@ public:
 
 		// TODO: update view matrix of X,Y,Z axis and cube
 		// TODO: update model matrix
+        //std::cout << t;
+
+        cube.updateModelMatrix();
+        cube.updateViewMatrix(viewRotation);
+        axisX.updateViewMatrix(viewRotation);
+        axisY.updateViewMatrix(viewRotation);
+        axisZ.updateViewMatrix(viewRotation);
 
         cube.render();
         axisX.render();

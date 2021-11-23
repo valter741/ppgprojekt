@@ -18,7 +18,10 @@
 #include "player.h"
 #include "space.h"
 
-const unsigned int SIZE = 512;
+#include "objects.cpp"
+
+const unsigned int SIZE = 900;
+
 
 /*!
  * Custom windows for our simple game
@@ -37,21 +40,31 @@ private:
 
     // Create a camera
     auto camera = std::make_unique<Camera>(60.0f, 1.0f, 0.1f, 100.0f);
-    camera->position.z = -15.0f;
+    camera->position.z = -30.0f;
+    camera->position.y = 30.0f;
     scene.camera = move(camera);
-
     // Add space background
     scene.objects.push_back(std::make_unique<Space>());
 
     // Add generator to scene
     auto generator = std::make_unique<Generator>();
-    generator->position.y = 10.0f;
-    scene.objects.push_back(move(generator));
+    generator->position.y = 30.0f;
+    generator->position.z = 10.0f;
+    //scene.objects.push_back(move(generator));
 
     // Add player to the scene
     auto player = std::make_unique<Player>();
     player->position.y = -6;
-    scene.objects.push_back(move(player));
+    //scene.objects.push_back(move(player));
+
+    auto cat = std::make_unique<Cat>();
+    scene.objects.push_back(move(cat));
+
+    auto tree = std::make_unique<Tree>();
+    scene.objects.push_back(move(tree));
+
+    auto bobor = std::make_unique<Bobor>();
+    scene.objects.push_back(move(bobor));
   }
 
 public:

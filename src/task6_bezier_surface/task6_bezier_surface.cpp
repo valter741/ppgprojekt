@@ -37,19 +37,29 @@ private:
   // Define our mesh as collection of faces
   std::vector<face> mesh;
 
+  std::vector<GLuint> indices;
+
   // These will hold the data and object buffers
   GLuint vao, vbo, tbo, ibo;
-  glm::mat4 modelMatrix{1.0f};
+
 
   glm::vec3 bezierPoint(const glm::vec3 controlPoints[4], float t) {
-    // TODO: Compute 3D point on bezier curve
-    return {};
+    glm::vec3 a = glm::lerp(controlPoints[0], controlPoints[1], t);
+    glm::vec3 b = glm::lerp(controlPoints[1], controlPoints[2], t);
+    glm::vec3 c = glm::lerp(controlPoints[2], controlPoints[3], t);
+
+    glm::vec3 x = glm::lerp(a, b, t);
+    glm::vec3 y = glm::lerp(b, c, t);
+
+    glm::vec3 p = glm::lerp(x, y, t);
+    return p;
   }
 
   ppgso::Shader program{texture_vert_glsl, texture_frag_glsl};
   ppgso::Texture texture{ppgso::image::loadBMP("lena.bmp")};
 public:
   // Public attributes that define position, color ..
+  glm::mat4 modelMatrix{1.0f};
   glm::vec3 position{0,0,0};
   glm::vec3 rotation{0,0,0};
   glm::vec3 scale{1,1,1};
@@ -59,28 +69,40 @@ public:
     // Generate Bezier patch points and incidences
     unsigned int PATCH_SIZE = 10;
     for(unsigned int i = 0; i < PATCH_SIZE ; i++) {
+      float t1 = i / 9.0f;
+      std::cout << t1;
+      glm::vec3 newcp[4];
+      newcp[0] = bezierPoint(controlPoints[0], t1);
+      newcp[1] = bezierPoint(controlPoints[1], t1);
+      newcp[2] = bezierPoint(controlPoints[2], t1);
+      newcp[3] = bezierPoint(controlPoints[3], t1);
       for (unsigned int j = 0; j < PATCH_SIZE; j++) {
         // TODO: Compute points on the bezier patch
         // HINT: Compute u, v coordinates
-
-        // vertices.push_back(??);
-        // texCoords.push_back(??);
+        float t2 = j / 9.0f;
+        glm::vec3 p = bezierPoint(newcp, t2);
+        vertices.push_back(p);
+        texCoords.push_back({(p[0]-1)/2, (p[2]-1)/2});
       }
     }
     // Generate indices
     for(unsigned int i = 1; i < PATCH_SIZE; i++) {
       for (unsigned int j = 1; j < PATCH_SIZE; j++) {
-        // TODO: Compute indices for triangle 1
-        // indices.push_back(??);
-        // indices.push_back(??);
-        // indices.push_back(??);
-
-        // TODO: Compute indices for triangle 2
-        // indices.push_back(??);
-        // indices.push_back(??);
-        // indices.push_back(??);
+        GLuint v1 = j-1 + (i-1) * PATCH_SIZE;
+        GLuint v2 = j + (i-1) * PATCH_SIZE;
+        GLuint v3 = j-1 + (i) * PATCH_SIZE;
+        GLuint v4 = j + (i) * PATCH_SIZE;
+        //std::cout << v1 << " " << v2 << " " << v3 << " " << v4 << '/n';
+        mesh.push_back({v1, v2, v3});
+        mesh.push_back({v4, v3, v2});
       }
     }
+    /*mesh.push_back({0,10,1});
+      mesh.push_back({11,10,1});
+      mesh.push_back({1,11,2});
+      mesh.push_back({12,11,2});
+      mesh.push_back({10,20,11});
+      mesh.push_back({11,20,21});*/
 
     // Copy data to OpenGL
     glGenVertexArrays(1, &vao);
@@ -109,7 +131,7 @@ public:
     // Copy indices to gpu
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.size() * sizeof(face), mesh.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.size() * sizeof(glm::vec3), mesh.data(), GL_STATIC_DRAW);
 
   };
   // Clean up
@@ -123,7 +145,9 @@ public:
   // Set the object transformation matrix
   void update() {
     // TODO: Compute transformation by scaling, rotating and then translating the shape
-    // modelMatrix = ??
+    modelMatrix = glm::scale(modelMatrix, this->scale);
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(1.0f), this->rotation);
+    modelMatrix = glm::translate(modelMatrix, this->position);
   }
 
   // Draw polygons
@@ -150,19 +174,26 @@ public:
 
     glBindVertexArray(vao);
     // TODO: Use correct rendering mode to draw the result
-    //glDrawElements(??);
+      glDrawElements(GL_TRIANGLES, mesh.size() * sizeof(face), GL_UNSIGNED_INT, 0);
   };
 };
 
 class BezierSurfaceWindow : public ppgso::Window {
 private:
   // Define 16 control points
-  glm::vec3 controlPoints[4][4]{
+  /*glm::vec3 controlPoints[4][4]{
       { {-1,1,0}, {-0.5,1,0}, {.5,1,0}, {1,1,3}, },
       { {-1,.5,0}, {-0.5,.5,0}, {.5,.5,0}, {1,.5,0}, },
       { {-1,-.5,0}, {-0.5,-.5,0}, {.5,-.5,0}, {1,-.5,-1}, },
       { {-1,-1,3}, {-0.5,-1,0}, {.5,-1,0}, {1,-1,0}, },
-  };
+  };*/
+
+    glm::vec3 controlPoints[4][4]{
+            { {-1,0,-1}, {-0.5,0,-1}, {.5,0,-1}, {1,0,-1}, },
+            { {-1,0,-0.5}, {-0.5,1,-0.5}, {.5,1,-0.5}, {1,0,-0.5}, },
+            { {-1,0,0.5}, {-0.5,1,0.5}, {.5,1,0.5}, {1,0,0.5}, },
+            { {-1,0,1}, {-0.5,0,1}, {.5,0,1}, {1,0,1}, }
+    };
 
   BezierPatch bezier{controlPoints};
 public:
@@ -182,8 +213,23 @@ public:
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Move and Render shape
-    auto time = (float) glfwGetTime();
-    bezier.rotation = {0,0,time};
+      auto time = (float) glfwGetTime();
+
+
+
+
+    controlPoints[1][1].y = sin(time);
+    controlPoints[1][2].y = sin(time);
+    controlPoints[2][1].y = sin(time);
+    controlPoints[2][2].y = sin(time);
+
+    glm::mat4 savedmat = bezier.modelMatrix;
+
+    BezierPatch bezier{controlPoints};
+
+    bezier.modelMatrix = savedmat;
+    bezier.rotation = {0,time,0};
+
     bezier.update();
     bezier.render();
   }
