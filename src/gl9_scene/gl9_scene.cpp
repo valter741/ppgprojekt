@@ -30,7 +30,7 @@ class SceneWindow : public ppgso::Window {
 private:
   Scene scene;
   bool animate = true;
-
+  //Camera camera = Camera(60.0f, 1.0f, 0.1f, 100.0f);
   /*!
    * Reset and initialize the game scene
    * Creating unique smart pointers to objects that are stored in the scene object list
@@ -107,6 +107,29 @@ public:
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
       animate = !animate;
     }
+
+    if (key == GLFW_KEY_A) {
+      scene.camera->position.x -= 1;
+    }
+
+    if (key == GLFW_KEY_D) {
+      scene.camera->position.x += 1;
+    }
+
+    if (key == GLFW_KEY_W) {
+      scene.camera->position.y -= 1;
+    }
+
+    if (key == GLFW_KEY_S) {
+      scene.camera->position.y += 1;
+    }
+
+    if (key == GLFW_KEY_UP) {
+      scene.camera->position.z += 1;
+    }
+    if (key == GLFW_KEY_DOWN) {
+      scene.camera->position.z -= 1;
+    }
   }
 
   /*!
@@ -117,6 +140,13 @@ public:
   void onCursorPos(double cursorX, double cursorY) override {
     scene.cursor.x = cursorX;
     scene.cursor.y = cursorY;
+
+      if (scene.cursor.left) {
+          double u = - (cursorX / width - 0.5f) * 2.0f;
+          double v = - (cursorY / height - 0.5f) * 2.0f;
+          scene.camera->back.x = u;
+          scene.camera->back.y = v;
+      }
   }
 
   /*!
@@ -146,6 +176,9 @@ public:
           // Pass on the click event
           obj->onClick(scene);
         }
+
+          //scene.camera->back.x = u;
+          //scene.camera->back.y = v;
       }
     }
     if(button == GLFW_MOUSE_BUTTON_RIGHT) {
