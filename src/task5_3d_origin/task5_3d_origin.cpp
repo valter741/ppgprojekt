@@ -51,14 +51,14 @@ public:
 
     // Initialize object data buffers
     Cube() {
-        vertices.push_back({0.2, 0, 0});   // 0
-        vertices.push_back({0.2, 0.2, 0});    // 1
-        vertices.push_back({0, 0.2, 0});   // 2
-        vertices.push_back({0, 0, 0});  // 3
-        vertices.push_back({0.2, 0, -0.2});   // 4
-        vertices.push_back({0.2, 0.2, -0.2});  // 5
-        vertices.push_back({0, 0.2, -0.2});  // 6
-        vertices.push_back({0, 0, -0.2}); // 7
+        vertices.push_back({1, -1, 1});   // 0
+        vertices.push_back({1, 1, 1});    // 1
+        vertices.push_back({0, 1, 1});   // 2
+        vertices.push_back({-1, -1, 1});  // 3
+        vertices.push_back({1, -1, -1});   // 4
+        vertices.push_back({1, 1, -1});  // 5
+        vertices.push_back({-1, 1, -1});  // 6
+        vertices.push_back({-1, -1, -1}); // 7
 
         indices.push_back({0, 1, 3});   // front
         indices.push_back({3, 1, 2});

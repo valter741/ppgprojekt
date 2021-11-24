@@ -8,6 +8,7 @@
 #include "object.h"
 #include "camera.h"
 
+
 /*
  * Scene is an object that will aggregate all scene related data
  * Objects are stored in a list of objects

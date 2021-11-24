@@ -43,8 +43,11 @@ private:
     camera->position.z = -30.0f;
     camera->position.y = 30.0f;
     scene.camera = move(camera);
+
+    auto skybox = std::make_unique<Skybox>();
+    scene.objects.push_back(move(skybox));
     // Add space background
-    scene.objects.push_back(std::make_unique<Space>());
+    //scene.objects.push_back(std::make_unique<Space>());
 
     // Add generator to scene
     auto generator = std::make_unique<Generator>();
@@ -109,11 +112,11 @@ public:
     }
 
     if (key == GLFW_KEY_A) {
-      scene.camera->position.x -= 1;
+      scene.camera->position.x += 1;
     }
 
     if (key == GLFW_KEY_D) {
-      scene.camera->position.x += 1;
+      scene.camera->position.x -= 1;
     }
 
     if (key == GLFW_KEY_W) {
