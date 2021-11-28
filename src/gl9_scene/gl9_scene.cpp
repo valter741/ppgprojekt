@@ -39,7 +39,7 @@ private:
     scene.objects.clear();
 
     // Create a camera
-    auto camera = std::make_unique<Camera>(60.0f, 1.0f, 0.1f, 100.0f);
+    auto camera = std::make_unique<Camera>(60.0f, 1.0f, 0.1f, 200.0f);
     camera->position.z = -30.0f;
     camera->position.y = 30.0f;
     scene.camera = move(camera);
@@ -133,6 +133,27 @@ public:
     if (key == GLFW_KEY_DOWN) {
       scene.camera->position.y -= 1;
     }
+    if (key == GLFW_KEY_LEFT) {
+      scene.camera->back.x -= 1;
+    }
+    if (key == GLFW_KEY_RIGHT) {
+      scene.camera->back.x += 1;
+    }
+    // otocenie kamery o 180stupnov dozadu/dopredu
+    if (key == GLFW_KEY_1) {
+      if (scene.camera->back.z == -1)
+        scene.camera->back.z = 1;
+    }
+    if (key == GLFW_KEY_2) {
+      if (scene.camera->back.z == 1)
+        scene.camera->back.z = -1;
+    }
+    // RESET kamery na pociatocnu poziciu
+    if (key == GLFW_KEY_R) {
+      scene.camera->up = glm::vec3 {0,1,0};
+      scene.camera->position = glm::vec3 {0,30.0f,-30.0f};
+      scene.camera->back = glm::vec3 {0,1,-1};
+    }
   }
 
   /*!
@@ -144,12 +165,13 @@ public:
     scene.cursor.x = cursorX;
     scene.cursor.y = cursorY;
 
-      if (scene.cursor.left) {
-          double u = - (cursorX / width - 0.5f) * 2.0f;
-          double v = - (cursorY / height - 0.5f) * 2.0f;
-          scene.camera->back.x = u;
-          scene.camera->back.y = v;
-      }
+    if (scene.cursor.left) {
+
+      double u = - (cursorX / width - 0.5f) * 2.0f;
+      double v = - (cursorY / height - 0.5f) * 2.0f;
+      scene.camera->back.x = u;
+      scene.camera->back.y = v;
+    }
   }
 
   /*!
