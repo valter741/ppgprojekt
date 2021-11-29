@@ -59,8 +59,11 @@ private:
     auto cat = std::make_unique<Cat>();
     //scene.objects.push_back(move(cat));
 
-    auto tree = std::make_unique<Tree>();
-    scene.objects.push_back(move(tree));
+    for(int i = 0; i < 9; i++){
+        auto tree = std::make_unique<Tree>();
+        tree->position = tree->positions[i];
+        scene.objects.push_back(move(tree));
+    }
 
     auto bobor = std::make_unique<Bobor>();
     scene.objects.push_back(move(bobor));

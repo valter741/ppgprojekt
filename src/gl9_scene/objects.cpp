@@ -191,6 +191,21 @@ public:
     std::unique_ptr<ppgso::Shader> shader;
     std::unique_ptr<ppgso::Texture> texture;
 
+    bool rotLock = false;
+
+    glm::vec3 positions[10] = {
+            {-20,2.5,20},
+            {-22,2.5,12},
+            {-15,2.5,10},
+            {-10,2.5,-5},
+            {-16,2.5,0},
+            {-20,2.5,-7},
+            {-16,2.5,-14},
+            {-11,2.5,-19},
+            {-22,2.5,-21},
+            {-20,2.5,20}
+    };
+
     Tree(){
 
         position = glm::vec3(-20,2.5,20);
@@ -203,13 +218,17 @@ public:
     }
 
     bool update(Scene &scene, float dt) override{
-        timer += dt;
-        if(timer < 1.0f){
+
+        if(this->rotation.x < 0.15 && !this->rotLock){
             this->rotation.x += dt/7;
-        }else if(timer < 3.0f){
+        }else {
+            this->rotLock = true;
+        }
+
+        if(this->rotation.x > -0.15 && this->rotLock){
             this->rotation.x -= dt/7;
-        }else{
-            timer = -1.0f;
+        }else {
+            this->rotLock = false;
         }
 
         generateModelMatrix();
