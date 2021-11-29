@@ -40,8 +40,6 @@ private:
 
     // Create a camera
     auto camera = std::make_unique<Camera>(60.0f, 1.0f, 0.1f, 200.0f);
-    camera->position.z = -30.0f;
-    camera->position.y = 30.0f;
     scene.camera = move(camera);
 
     auto skybox = std::make_unique<Skybox>();
@@ -49,19 +47,17 @@ private:
     // Add space background
     //scene.objects.push_back(std::make_unique<Space>());
 
-    // Add generator to scene
-    auto generator = std::make_unique<Generator>();
-    generator->position.y = 30.0f;
-    generator->position.z = 10.0f;
-    //scene.objects.push_back(move(generator));
+    auto voda1 = std::make_unique<Voda1>();
+    scene.objects.push_back(move(voda1));
 
-    // Add player to the scene
-    auto player = std::make_unique<Player>();
-    player->position.y = -6;
-    //scene.objects.push_back(move(player));
+    auto koryto1 = std::make_unique<Koryto1>();
+    scene.objects.push_back(move(koryto1));
+
+    auto log = std::make_unique<Log>();
+    scene.objects.push_back(move(log));
 
     auto cat = std::make_unique<Cat>();
-    scene.objects.push_back(move(cat));
+    //scene.objects.push_back(move(cat));
 
     auto tree = std::make_unique<Tree>();
     scene.objects.push_back(move(tree));
@@ -106,6 +102,10 @@ public:
       initScene();
     }
 
+    if (key == GLFW_KEY_M) {
+        std::cout << "pos: " << scene.camera->position.x << " " << scene.camera->position.y << " " <<scene.camera->position.z << "\n" ;
+        std::cout << "back: " << scene.camera->back.x << " " << scene.camera->back.y << " " << scene.camera->back.z << "\n" ;
+    }
     // Pause
     if (key == GLFW_KEY_P && action == GLFW_PRESS) {
       animate = !animate;

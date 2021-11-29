@@ -13,7 +13,7 @@ Space::Space() {
 
 bool Space::update(Scene &scene, float dt) {
   // Offset for UV mapping, creates illusion of scrolling
-  //textureOffset.y -= dt/5;
+  textureOffset.y -= dt/5;
 
   generateModelMatrix();
   return true;

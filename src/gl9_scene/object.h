@@ -21,6 +21,7 @@ public:
   Object(Object&&) = default;
   virtual ~Object() {};
 
+
   /*!
    * Update Object parameters, usually used to update the modelMatrix based on position, scale and rotation
    *
@@ -48,6 +49,7 @@ public:
   glm::vec3 rotation{0,0,0};
   glm::vec3 scale{1,1,1};
   glm::mat4 modelMatrix{1};
+  float timer = 0.0f;
 
 protected:
   /*!
