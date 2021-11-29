@@ -205,9 +205,9 @@ public:
     bool update(Scene &scene, float dt) override{
         timer += dt;
         if(timer < 1.0f){
-            this->rotation.x += dt/5;
+            this->rotation.x += dt/7;
         }else if(timer < 3.0f){
-            this->rotation.x -= dt/5;
+            this->rotation.x -= dt/7;
         }else{
             timer = -1.0f;
         }
