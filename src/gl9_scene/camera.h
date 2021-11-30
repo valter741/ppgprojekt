@@ -18,6 +18,21 @@ public:
   glm::mat4 viewMatrix;
   glm::mat4 projectionMatrix;
 
+  glm::vec3 posKeyFrame[2] = {
+          {16,24,-28},
+          {6, 10, 5}
+  };
+  glm::vec3 backKeyFrame[2] = {
+          {0.65,0.65,-1},
+          {1.5, 0.7, -1}
+  };;
+
+  float inter = 0.0f;
+  float timepassed = 0.0f;
+  bool anim = false;
+
+
+
   /*!
    * Create new Camera that will generate viewMatrix and projectionMatrix based on its position, up and back vectors
    * @param fow - Field of view in degrees
@@ -30,7 +45,7 @@ public:
   /*!
    * Update Camera viewMatrix based on up, position and back vectors
    */
-  void update();
+  void update(float dt);
 
   /*!
    * Get direction vector in world coordinates through camera projection plane

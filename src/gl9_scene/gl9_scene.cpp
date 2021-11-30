@@ -48,6 +48,9 @@ private:
     // Add space background
     //scene.objects.push_back(std::make_unique<Space>());
 
+    auto bobor = std::make_unique<Bobor>();
+    scene.objects.push_back(move(bobor));
+
     auto voda1 = std::make_unique<Voda1>();
     scene.objects.push_back(move(voda1));
 
@@ -62,9 +65,6 @@ private:
         tree->position = tree->positions[i];
         scene.objects.push_back(move(tree));
     }
-
-    auto bobor = std::make_unique<Bobor>();
-    scene.objects.push_back(move(bobor));
   }
 
 public:
