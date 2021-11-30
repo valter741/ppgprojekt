@@ -52,6 +52,8 @@ class Scene {
       double x, y;
       bool left, right;
     } cursor;
+
+    int scenar = 0;
 };
 
 #endif // _PPGSO_SCENE_H

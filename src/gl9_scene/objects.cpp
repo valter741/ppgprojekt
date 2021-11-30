@@ -6,50 +6,6 @@
 #include <shaders/texture_frag_glsl.h>
 
 
-
-
-class Cat: public Object{
-
-
-public:
-    std::unique_ptr<ppgso::Mesh> mesh;
-    std::unique_ptr<ppgso::Shader> shader;
-    std::unique_ptr<ppgso::Texture> texture;
-
-    Cat(){
-
-        position = glm::vec3(0,0,0);
-        rotation = glm::vec3 (glm::radians(-90.0f), glm::radians(180.0f),0);
-        scale *= 0.2;
-        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
-        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("cat.bmp"));
-        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("cat.obj");
-
-    }
-
-    bool update(Scene &scene, float dt) override{
-        generateModelMatrix();
-        return true;
-    }
-
-
-    void render(Scene &scene) override {
-        shader->use();
-
-        // Set up light
-        shader->setUniform("LightDirection", scene.lightDirection);
-
-        // use camera
-        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
-        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
-
-        // render mesh
-        shader->setUniform("ModelMatrix", modelMatrix);
-        shader->setUniform("Texture", *texture);
-        mesh->render();
-    }
-};
-
 class Bobor: public Object{
 
 
@@ -57,6 +13,13 @@ public:
     std::unique_ptr<ppgso::Mesh> mesh;
     std::unique_ptr<ppgso::Shader> shader;
     std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec3 posFrames[2] = {
+            {-7, 5, 15},
+            {-7, -4, 15}
+    };
+    glm::vec3 animspeed;
+
 
     Bobor(){
 
@@ -67,9 +30,36 @@ public:
         if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("bobor.bmp"));
         if (!mesh) mesh = std::make_unique<ppgso::Mesh>("bobor.obj");
 
+        timer = 0;
+
+        animspeed = {0,0,0};
+
     }
 
     bool update(Scene &scene, float dt) override{
+        this->timer += dt;
+        float roundtime = std::round(timer*10);
+
+        //std::cout << roundtime << " ";
+
+        if(scene.scenar == 1){
+            if(roundtime > 30 && roundtime < 45){
+                if(this->animspeed.x == 0 && this->animspeed.y == 0 && this->animspeed.z == 0){
+                    this->animspeed = this->posFrames[0]-this->position;
+                }
+                this->position += this->animspeed*dt/1.5f;
+            }
+            if(roundtime == 45){
+                this->animspeed = {0,0,0};
+            }
+            if(roundtime > 46 && roundtime < 60){
+                if(this->animspeed.x == 0 && this->animspeed.y == 0 && this->animspeed.z == 0){
+                    this->animspeed = this->posFrames[1]-this->position;
+                }
+                this->position += this->animspeed*dt/1.4f;
+            }
+        }
+
         generateModelMatrix();
         return true;
     }
@@ -202,8 +192,7 @@ public:
             {-20,2.5,-7},
             {-16,2.5,-14},
             {-11,2.5,-19},
-            {-22,2.5,-21},
-            {-20,2.5,20}
+            {-22,2.5,-21}
     };
 
     Tree(){

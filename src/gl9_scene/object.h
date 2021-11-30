@@ -51,6 +51,8 @@ public:
   glm::mat4 modelMatrix{1};
   float timer = 0.0f;
 
+
+
 protected:
   /*!
    * Generate modelMatrix from position, rotation and scale

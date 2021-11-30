@@ -30,6 +30,7 @@ class SceneWindow : public ppgso::Window {
 private:
   Scene scene;
   bool animate = true;
+  static float time;
   //Camera camera = Camera(60.0f, 1.0f, 0.1f, 100.0f);
   /*!
    * Reset and initialize the game scene
@@ -55,9 +56,6 @@ private:
 
     auto log = std::make_unique<Log>();
     scene.objects.push_back(move(log));
-
-    auto cat = std::make_unique<Cat>();
-    //scene.objects.push_back(move(cat));
 
     for(int i = 0; i < 9; i++){
         auto tree = std::make_unique<Tree>();
@@ -151,11 +149,10 @@ public:
       if (scene.camera->back.z == 1)
         scene.camera->back.z = -1;
     }
-    // RESET kamery na pociatocnu poziciu
-    if (key == GLFW_KEY_R) {
-      scene.camera->up = glm::vec3 {0,1,0};
-      scene.camera->position = glm::vec3 {0,30.0f,-30.0f};
-      scene.camera->back = glm::vec3 {0,1,-1};
+
+    if (key == GLFW_KEY_F1) {
+        scene.scenar = 1;
+        initScene();
     }
   }
 
@@ -219,10 +216,12 @@ public:
    */
   void onIdle() override {
     // Track time
-    static auto time = (float) glfwGetTime();
+    static float time = (float) glfwGetTime();
 
     // Compute time delta
     float dt = animate ? (float) glfwGetTime() - time : 0;
+    if(dt > 0.1)
+        dt = 0;
 
     time = (float) glfwGetTime();
 
