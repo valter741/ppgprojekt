@@ -25,7 +25,7 @@ public:
   glm::vec3 backKeyFrame[2] = {
           {0.65,0.65,-1},
           {1.5, 0.7, -1}
-  };;
+  };
 
   float inter = 0.0f;
   float timepassed = 0.0f;
@@ -41,6 +41,8 @@ public:
    * @param far - Distance to the far frustum plane
    */
   Camera(float fow = 45.0f, float ratio = 1.0f, float near = 0.1f, float far = 10.0f);
+
+  void animate(glm::vec3 pkey1, glm::vec3 pkey2, glm::vec3 vkey1, glm::vec3 vkey2, float length, float dt);
 
   /*!
    * Update Camera viewMatrix based on up, position and back vectors

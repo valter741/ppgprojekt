@@ -10,22 +10,26 @@ Camera::Camera(float fow, float ratio, float near, float far) {
   viewMatrix = lookAt(position, position-back, up);
 }
 
+void Camera::animate(glm::vec3 pkey1, glm::vec3 pkey2, glm::vec3 vkey1, glm::vec3 vkey2, float length, float dt){
+    if(!anim){
+        anim = true;
+        inter = 1.0f*(dt/length);
+    }
+    if(inter > 1){
+        inter = 1;
+        anim = false;
+    }
+    position = glm::lerp(pkey1, pkey2, {inter,inter,inter});
+    back = glm::lerp(vkey1, vkey2, {inter,inter,inter});
+    inter += 1.0f*(dt/length);
+}
+
 void Camera::update(float dt) {
 
     timepassed += dt;
 
     if(timepassed > 1 && position.x != posKeyFrame[1].x){
-        if(!anim){
-            anim = true;
-            inter = 1.0f*(dt/3.0f);
-        }
-        if(inter > 1){
-            inter = 1;
-            anim = false;
-        }
-        position = glm::lerp(posKeyFrame[0], posKeyFrame[1], {inter,inter,inter});
-        back = glm::lerp(backKeyFrame[0], backKeyFrame[1], {inter,inter,inter});
-        inter += 1.0f*(dt/3.0f);
+        animate(posKeyFrame[0], posKeyFrame[1], backKeyFrame[0], backKeyFrame[1], 3.0f, dt);
     }
 
     viewMatrix = lookAt(position, position-back, up);
