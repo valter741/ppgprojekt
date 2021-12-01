@@ -39,32 +39,47 @@ private:
   void initScene() {
     scene.objects.clear();
 
-    // Create a camera
-    auto camera = std::make_unique<Camera>(60.0f, 1.0f, 0.1f, 200.0f);
-    scene.camera = move(camera);
+      auto camera = std::make_unique<Camera>(60.0f, 1.0f, 0.1f, 200.0f);
 
-    auto skybox = std::make_unique<Skybox>();
-    scene.objects.push_back(move(skybox));
-    // Add space background
-    //scene.objects.push_back(std::make_unique<Space>());
 
-    auto bobor = std::make_unique<Bobor>();
-    scene.objects.push_back(move(bobor));
+    if(scene.scenar == 1){
 
-    auto voda1 = std::make_unique<Voda1>();
-    scene.objects.push_back(move(voda1));
+        scene.camera = move(camera);
+        auto skybox = std::make_unique<Skybox>();
+        scene.objects.push_back(move(skybox));
+        // Add space background
+        //scene.objects.push_back(std::make_unique<Space>());
 
-    auto koryto1 = std::make_unique<Koryto1>();
-    scene.objects.push_back(move(koryto1));
+        auto bobor = std::make_unique<Bobor>();
+        scene.objects.push_back(move(bobor));
 
-    auto log = std::make_unique<Log>();
-    scene.objects.push_back(move(log));
+        auto voda1 = std::make_unique<Voda1>();
+        scene.objects.push_back(move(voda1));
 
-    for(int i = 0; i < 9; i++){
-        auto tree = std::make_unique<Tree>();
-        tree->position = tree->positions[i];
-        scene.objects.push_back(move(tree));
+        auto koryto1 = std::make_unique<Koryto1>();
+        scene.objects.push_back(move(koryto1));
+
+        auto log = std::make_unique<Log>();
+        scene.objects.push_back(move(log));
+
+        for(int i = 0; i < 9; i++){
+            auto tree = std::make_unique<Tree>();
+            tree->position = tree->positions[i];
+            scene.objects.push_back(move(tree));
+        }
+    }else if (scene.scenar == 2){
+        camera->position = {0,0,-7};
+        camera->back = {0,0,-1};
+        scene.camera = move(camera);
+
+        auto skybox = std::make_unique<Skybox>();
+        skybox->texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("underwater.bmp"));
+        scene.objects.push_back(move(skybox));
+
+        auto koryto = std::make_unique<Koryto2>();
+        scene.objects.push_back(move(koryto));
     }
+
   }
 
 public:
@@ -150,8 +165,14 @@ public:
         scene.camera->back.z = -1;
     }
 
-    if (key == GLFW_KEY_F1) {
+    if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
         scene.scenar = 1;
+        scene.animationstep = 0;
+        initScene();
+    }
+    if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+        scene.scenar = 2;
+        scene.animationstep = 0;
         initScene();
     }
   }
@@ -224,6 +245,10 @@ public:
         dt = 0;
 
     time = (float) glfwGetTime();
+
+    if(scene.camera->animstep == 0 && scene.camera->timepassed > 1 && scene.scenar == 1){
+        scene.camera->animate(scene.camera->posKeyFrame[0], scene.camera->posKeyFrame[1], scene.camera->backKeyFrame[0], scene.camera->backKeyFrame[1], 10.0f, dt);
+    }
 
     // Set gray background
     glClearColor(.5f, .5f, .5f, 0);

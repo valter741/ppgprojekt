@@ -29,7 +29,7 @@ public:
 
   float inter = 0.0f;
   float timepassed = 0.0f;
-  bool anim = false;
+  int animstep = 0;
 
 
 

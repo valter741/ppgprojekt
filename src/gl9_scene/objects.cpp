@@ -4,8 +4,6 @@
 #include <shaders/diffuse_frag_glsl.h>
 #include <shaders/texture_vert_glsl.h>
 #include <shaders/texture_frag_glsl.h>
-#include <shaders/color_vert_glsl.h>
-#include <shaders/color_frag_glsl.h>
 
 class Particle: public Object{
 
@@ -72,57 +70,64 @@ public:
     std::unique_ptr<ppgso::Shader> shader;
     std::unique_ptr<ppgso::Texture> texture;
 
-    glm::vec3 posFrames[2] = {
+    glm::vec3 posFrames[4] = {
+            {-15, 2.5, 15},
+            {-11, 2.5, 15},
             {-7, 5, 15},
             {-7, -4, 15}
     };
-    glm::vec3 prevpos;
 
-    float interpolate = 0.0f;
+    glm::vec3 rotFrames[4] = {
+            {0, 0, 0},
+            {0, 0, 0},
+            {0, glm::radians(45.0f), 0},
+            {0, -4, glm::radians(-90.0f)}
+    };
+
+    float inter = 0.0f;
+
+    int animstage = 0;
 
 
     Bobor(){
 
-        position = glm::vec3(-11,2.5,15);
-        rotation = glm::vec3 (glm::radians(-90.0f), 0,0);
+        position = glm::vec3(-15,2.5,15);
+        rotation = glm::vec3 (0, 0,0);
         scale *= 0.2;
         if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
         if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("bobor.bmp"));
-        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("bobor.obj");
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("bobor2.obj");
 
         timer = 0;
 
-        prevpos = {0,0,0};
+    }
 
+    void animate(int p1, int p2, float length, float dt){
+        inter += 1.0f*(dt/length);
+
+        if(inter >= 1){
+            inter = 0;
+            position = posFrames[p2];
+            animstage++;
+            return;
+        }
+        rotation = glm::lerp(rotFrames[p1], rotFrames[p2], {inter,inter,inter});
+        position = glm::lerp(posFrames[p1], posFrames[p2], {inter,inter,inter});
     }
 
     bool update(Scene &scene, float dt) override{
         this->timer += dt;
-        float roundtime = std::round(timer*10);
+        //float roundtime = std::round(timer*10);
 
         //std::cout << roundtime << " ";
 
         if(scene.scenar == 1){
-            if(roundtime > 30 && roundtime < 45){
-                if(this->prevpos.x == 0 && this->prevpos.y == 0 && this->prevpos.z == 0){
-                    this->prevpos = this->position;
-                    interpolate = dt/1.5f;
-                }
-                this->position = glm::lerp(prevpos, posFrames[0], {interpolate,interpolate,interpolate});
-                std::cout << interpolate << " ";
-                interpolate += dt/1.5f;
-            }
-            if(roundtime == 45){
-                this->prevpos = {0,0,0};
-            }
-            if(roundtime > 46 && roundtime < 60){
-                if(this->prevpos.x == 0 && this->prevpos.y == 0 && this->prevpos.z == 0){
-                    this->prevpos = this->position;
-                    interpolate = dt/1.4f;
-                }
-                this->position = glm::lerp(prevpos, posFrames[1], {interpolate,interpolate,interpolate});
-                std::cout << interpolate << " ";
-                interpolate += dt/1.4f;
+            if(timer > 10 && animstage == 0){
+                animate(0, 1, 1.5f, dt);
+            }else if(animstage == 1){
+                animate(1, 2, 1.5f, dt);
+            }else if(animstage == 2){
+                animate(2, 3, 1.5f, dt);
             }
         }
 
@@ -164,6 +169,48 @@ public:
         if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
         if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("grass.bmp"));
         if (!mesh) mesh = std::make_unique<ppgso::Mesh>("koryto1.obj");
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class Koryto2: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    Koryto2(){
+
+        position = glm::vec3(0,-5,0);
+        rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),0);
+        scale *= 2.0f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("ground2.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("koryto2.obj");
 
     }
 

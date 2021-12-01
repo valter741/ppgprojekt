@@ -53,7 +53,9 @@ class Scene {
       bool left, right;
     } cursor;
 
-    int scenar = 0;
+    int scenar = 1;
+
+    int animationstep = -1;
 };
 
 #endif // _PPGSO_SCENE_H
