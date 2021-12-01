@@ -5,6 +5,8 @@ uniform sampler2D Texture;
 // Direction of light
 uniform vec3 LightDirection;
 
+uniform vec3 LightDirection2 = {0, 1.0f, 1.0f};
+
 // (optional) Transparency
 uniform float Transparency;
 
@@ -14,6 +16,8 @@ uniform vec2 TextureOffset;
 uniform vec3 MaterialDiff = {1,1,1};
 
 uniform vec3 LightColor = {1,1,1};
+
+uniform vec3 LightColor2 = {0,0,0};
 
 uniform mat3 Filtr = {
 {0,0,0},
@@ -60,8 +64,12 @@ void main() {
   // Compute diffuse lighting
   float diffuse = max(dot(normal, vec4(normalize(LightDirection), 1.0f)), 0.0f);
 
+  float diffuse2 = max(dot(normal, vec4(normalize(LightDirection2), 1.0f)), 0.0f);
+
   // Lookup the color in Texture on coordinates given by texCoord
   // NOTE: Texture coordinate is inverted vertically for compatibility with OBJ
-  FragmentColor = color * vec4(LightColor*(MaterialDiff * diffuse), 1);
+  vec4 c1 = color * vec4(LightColor*(MaterialDiff * diffuse), 1);
+  vec4 c2 = color * vec4(LightColor2*(MaterialDiff * diffuse2), 1);
+  FragmentColor = c1 + c2;
   FragmentColor.a = Transparency;
 }
