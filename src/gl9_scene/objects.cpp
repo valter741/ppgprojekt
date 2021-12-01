@@ -141,6 +141,8 @@ public:
 
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("Filtr", scene.filtr);
 
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
@@ -183,6 +185,8 @@ public:
 
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("Filtr", scene.filtr);
 
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
@@ -225,6 +229,8 @@ public:
 
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("Filtr", scene.filtr);
 
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
@@ -287,6 +293,8 @@ public:
 
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("Filtr", scene.filtr);
 
         shader->setUniform("TextureOffset", textureOffset);
 
@@ -358,6 +366,9 @@ public:
 
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("MaterialDiff", {0.07568,0.61424,0.07568});
+        shader->setUniform("Filtr", scene.filtr);
 
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
@@ -402,6 +413,8 @@ public:
 
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("Filtr", scene.filtr);
 
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);

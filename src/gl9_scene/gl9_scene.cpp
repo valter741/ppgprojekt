@@ -123,9 +123,6 @@ public:
         std::cout << "back: " << scene.camera->back.x << " " << scene.camera->back.y << " " << scene.camera->back.z << "\n" ;
     }
     // Pause
-    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
-      animate = !animate;
-    }
 
     if (key == GLFW_KEY_A) {
       scene.camera->position.x += 1;
@@ -163,6 +160,28 @@ public:
     if (key == GLFW_KEY_2) {
       if (scene.camera->back.z == 1)
         scene.camera->back.z = -1;
+    }
+
+    if (key == GLFW_KEY_O) {
+        scene.lightColor = {1,1,1};
+    }
+    if (key == GLFW_KEY_P) {
+        scene.lightColor = {1,0.2,0.2};
+    }
+
+    if (key == GLFW_KEY_K) {
+        scene.filtr = {
+                {0,0,0},
+                {0,1,0},
+                {0,0,0}
+        };
+    }
+    if (key == GLFW_KEY_L) {
+        scene.filtr = {
+                {-1,-1,-1},
+                {-1,8,-1},
+                {-1,-1,-1}
+        };
     }
 
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
