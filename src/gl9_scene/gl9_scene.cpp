@@ -67,6 +67,7 @@ private:
             tree->position = tree->positions[i];
             scene.objects.push_back(move(tree));
         }
+
     }else if (scene.scenar == 2){
         camera->position = {0,0,-7};
         camera->back = {0,0,-1};
@@ -78,6 +79,12 @@ private:
 
         auto koryto = std::make_unique<Koryto2>();
         scene.objects.push_back(move(koryto));
+
+        for(int i = 0; i < 8; i++){
+            auto fish = std::make_unique<Fish>();
+            scene.objects.push_back(move(fish));
+        }
+
     }
 
   }

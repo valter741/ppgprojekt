@@ -55,6 +55,10 @@ class Scene {
             {0,0,0}
     };
 
+    glm::vec3 lightDirection2{0, 1.0f, -1.0f};
+
+    glm::vec3 lightColor2{0, 0, 0};
+
     // Store cursor state
     struct {
       double x, y;

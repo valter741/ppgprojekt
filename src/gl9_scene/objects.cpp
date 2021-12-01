@@ -22,7 +22,7 @@ public:
         rotation = glm::vec3 (0, 0,0);
         speed = sp;
         scale *= 0.3f;
-        if (!shader) shader = std::make_unique<ppgso::Shader>(texture_vert_glsl, texture_frag_glsl);
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
         if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("mywotah.bmp"));
         if (!mesh) mesh = std::make_unique<ppgso::Mesh>("sphere.obj");
 
@@ -49,7 +49,10 @@ public:
         shader->use();
 
         // Set up light
-        //shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor2", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
 
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
@@ -108,6 +111,7 @@ public:
         if(inter >= 1){
             inter = 0;
             position = posFrames[p2];
+            rotation = rotFrames[p2];
             animstage++;
             return;
         }
@@ -142,6 +146,111 @@ public:
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
         shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class Fish: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+
+    Fish(){
+
+        position = glm::vec3(glm::linearRand(-4.0f, 4.0f),glm::linearRand(-3.5f, 4.0f),0);
+        if(position.x > 0){
+            rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),glm::radians(-90.0f));
+            speed = glm::linearRand(-2.0f, -0.5f);
+        }else{
+            rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),glm::radians(90.0f));
+            speed = glm::linearRand(0.5f, 2.0f);;
+        }
+        scale *= 0.025f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("fish.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("fish.obj");
+
+    }
+
+    void collision(Scene &scene){
+        auto start = scene.objects.begin();
+        std::advance(start, 1);
+        for(int i = 2; i < 10; i++){
+            std::advance(start, 1);
+            Object* fish2 = start->get();
+            if(this->position != fish2->position){
+                //std::cout << this->position.x << " " << fish2->position.x << " ";
+                if(abs(this->position.x - fish2->position.x) <= 0.6 && abs(this->position.y - fish2->position.y) <= 0.35){
+                    //std::cout<<"collision";
+                    if(this->position.x < fish2->position.x)
+                        this->position.x -= 0.1;
+                    if(this->position.x > fish2->position.x)
+                        this->position.x += 0.1;
+                    if((this->speed < 0 && fish2->speed < 0) || (this->speed > 0 && fish2->speed > 0)){
+                        if(this->speed > fish2->speed){
+                            this->speed *= -1;
+                            this->rotation.z *= -1;
+                        }else{
+                            fish2->speed *= -1;
+                            fish2->rotation.z *= -1;
+                        }
+                    }else{
+                        this->speed *= -1;
+                        fish2->speed *= -1;
+                        this->rotation.z *= -1;
+                        fish2->rotation.z *= -1;
+                    }
+                }
+            }
+        }
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        collision(scene);
+
+        position.x += speed * dt;
+
+        if(position.x > 4.0){
+            position.x = 3.99;
+            speed *= -1;
+            rotation.z *= -1;
+        }
+        if(position.x < -4.0){
+            position.x = -3.99;
+            speed *= -1;
+            rotation.z *= -1;
+        }
+
+
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
         shader->setUniform("Filtr", scene.filtr);
 
         // use camera
@@ -186,6 +295,8 @@ public:
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
         shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
         shader->setUniform("Filtr", scene.filtr);
 
         // use camera
@@ -230,6 +341,8 @@ public:
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
         shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
         shader->setUniform("Filtr", scene.filtr);
 
         // use camera
@@ -294,6 +407,8 @@ public:
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
         shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
         shader->setUniform("Filtr", scene.filtr);
 
         shader->setUniform("TextureOffset", textureOffset);
@@ -368,6 +483,8 @@ public:
         shader->setUniform("LightDirection", scene.lightDirection);
         shader->setUniform("LightColor", scene.lightColor);
         shader->setUniform("MaterialDiff", {0.07568,0.61424,0.07568});
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
         shader->setUniform("Filtr", scene.filtr);
 
         // use camera
@@ -414,6 +531,8 @@ public:
         // Set up light
         shader->setUniform("LightDirection", scene.lightDirection);
         shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
         shader->setUniform("Filtr", scene.filtr);
 
         // use camera
