@@ -68,6 +68,13 @@ class Scene {
     int scenar = 1;
 
     int animationstep = -1;
+
+    int lightanim = 1;
+
+    glm::vec3 gravity = {0, -0.2, 0};
+    glm::vec3 wind = {0, 0, 0};
+
+    bool isRaining = false;
 };
 
 #endif // _PPGSO_SCENE_H

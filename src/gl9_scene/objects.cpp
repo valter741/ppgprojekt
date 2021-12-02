@@ -65,6 +65,191 @@ public:
     }
 };
 
+class Bubble: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec3 speed;
+
+
+    Bubble(glm::vec3 pos, glm::vec3 sp){
+
+        position = pos;
+        speed = sp;
+        scale *= 0.3f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("bubble.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("sphere.obj");
+
+        timer = 0;
+
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        position += speed;
+
+        generateModelMatrix();
+        if(position.y > 10){
+            return false;
+        }
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor2", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class BubbleGenerator: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec3 speed;
+
+
+    BubbleGenerator(glm::vec3 pos){
+
+        position = pos;
+        generateModelMatrix();
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+
+
+        if(glm::linearRand(0.0f, 120.0f) < 1.0f){
+            auto bubble = std::make_unique<Bubble>(glm::vec3(this->position.x + glm::linearRand(-0.2f, 0.2f),this->position.y,this->position.z), glm::vec3(0,0.02,0));
+            scene.objects.push_back(move(bubble));
+
+        }
+
+
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+
+    }
+};
+
+class Raindrop: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec3 speed;
+
+
+    Raindrop(glm::vec3 pos){
+
+        position = pos;
+        scale *= 0.3f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("bubble.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("sphere.obj");
+
+        timer = 0;
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        position += scene.gravity;
+
+        position += scene.wind;
+
+        generateModelMatrix();
+        if(position.y < -6){
+            return false;
+        }
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor2", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("MaterialDiff", glm::vec3(.2,.5,.7));
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class Rain: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec3 speed;
+
+
+    Rain(glm::vec3 pos){
+
+        position = pos;
+        generateModelMatrix();
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        if(scene.isRaining){
+            auto raind = std::make_unique<Raindrop>(glm::vec3(this->position.x + glm::linearRand(-30.0f, 30.0f),this->position.y,this->position.z + glm::linearRand(-30.0f, 30.0f)));
+            scene.objects.push_back(move(raind));
+        }
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+
+    }
+};
+
 class Bobor: public Object{
 
 
@@ -126,12 +311,18 @@ public:
         //std::cout << roundtime << " ";
 
         if(scene.scenar == 1){
-            if(timer > 10 && animstage == 0){
+            if(timer > 15 && animstage == 0){
                 animate(0, 1, 1.5f, dt);
             }else if(animstage == 1){
                 animate(1, 2, 1.5f, dt);
             }else if(animstage == 2){
                 animate(2, 3, 1.5f, dt);
+            }
+        }
+
+        if(scene.scenar == 2){
+            if(timer > 15 && this->position.y > -5){
+                this->position.y -= 0.02;
             }
         }
 
@@ -168,6 +359,10 @@ public:
     std::unique_ptr<ppgso::Mesh> mesh;
     std::unique_ptr<ppgso::Shader> shader;
     std::unique_ptr<ppgso::Texture> texture;
+
+    int scared = 0;
+
+    Object* bobor = NULL;
 
 
     Fish(){
@@ -220,26 +415,54 @@ public:
         }
     }
 
+    bool animate(Scene &scene, float dt){
+        if(this->bobor == NULL){
+            auto start = scene.objects.begin();
+            std::advance(start, 13);
+            bobor = start->get();
+        }
+
+        if(scared == 0){
+            position.x += speed * dt;
+
+            if(position.x > 4.0){
+                position.x = 3.99;
+                speed *= -1;
+                rotation.z *= -1;
+            }
+            if(position.x < -4.0){
+                position.x = -3.99;
+                speed *= -1;
+                rotation.z *= -1;
+            }
+
+            if(position.y > bobor->position.y){
+                scared = 1;
+            }
+
+        }
+        if(scared == 1){
+            position.x += 3 * speed * dt;
+            if((position.x > 0 && speed < 0) || (position.x < 0 && speed > 0)){
+                speed *= -1;
+                rotation.z *= -1;
+            }
+            if(position.x > 5 || position.x < -5)
+                return false;
+        }
+
+
+        return true;
+    };
+
     bool update(Scene &scene, float dt) override{
 
         collision(scene);
 
-        position.x += speed * dt;
-
-        if(position.x > 4.0){
-            position.x = 3.99;
-            speed *= -1;
-            rotation.z *= -1;
-        }
-        if(position.x < -4.0){
-            position.x = -3.99;
-            speed *= -1;
-            rotation.z *= -1;
-        }
-
+        bool alive = animate(scene, dt);
 
         generateModelMatrix();
-        return true;
+        return alive;
     }
 
 
@@ -577,7 +800,13 @@ public:
         //glDepthFunc(GL_ALWAYS);
         glFrontFace(GL_CW);
         // Set up light
-        //shader->setUniform("LightDirection", scene.lightDirection);
+        /*shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);*/
+
+        shader->setUniform("LightColor", scene.lightColor);
         // use camera
         shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
         shader->setUniform("ViewMatrix", scene.camera->viewMatrix);

@@ -7,7 +7,6 @@ layout(location = 1) in vec2 TexCoord;
 uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
-
 // This will be passed to the fragment shader
 out vec2 texCoord;
 

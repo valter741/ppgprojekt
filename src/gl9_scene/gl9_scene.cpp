@@ -85,6 +85,43 @@ private:
             scene.objects.push_back(move(fish));
         }
 
+        for(int i = 0; i < 3; i++){
+            auto bubbleGenerator = std::make_unique<BubbleGenerator>(glm::vec3(glm::linearRand(-10.0f, 10.0f),-5,10));
+            scene.objects.push_back(move(bubbleGenerator));
+        }
+
+        auto bobor = std::make_unique<Bobor>();
+        bobor->position = {0,10,0};
+        bobor->rotation = {0,0,glm::radians(90.0f)};
+        bobor->scale *= 0.5;
+        scene.objects.push_back(move(bobor));
+
+    }else if (scene.scenar == 3){
+        camera->position = {28, 8, -2};
+        camera->back = {5.6, 0.25, -1};
+        scene.camera = move(camera);
+
+        auto skybox = std::make_unique<Skybox>();
+        scene.objects.push_back(move(skybox));
+
+        auto voda1 = std::make_unique<Voda1>();
+        scene.objects.push_back(move(voda1));
+
+        auto koryto1 = std::make_unique<Koryto1>();
+        scene.objects.push_back(move(koryto1));
+
+        auto log = std::make_unique<Log>();
+        scene.objects.push_back(move(log));
+
+        for(int i = 0; i < 9; i++){
+            auto tree = std::make_unique<Tree>();
+            tree->position = tree->positions[i];
+            scene.objects.push_back(move(tree));
+        }
+
+        auto rain = std::make_unique<Rain>(glm::vec3(0,30,10));
+        scene.objects.push_back(move(rain));
+
     }
 
   }
@@ -168,27 +205,29 @@ public:
       if (scene.camera->back.z == 1)
         scene.camera->back.z = -1;
     }
+    if (key == GLFW_KEY_9) {
+        scene.wind = {-0.01,0,0.04};
+    }
+    if (key == GLFW_KEY_0) {
+        scene.wind = {0,0,0};
+    }
 
     if (key == GLFW_KEY_O) {
-        scene.lightColor = {1,1,1};
+        scene.isRaining = true;
+        scene.lightColor2 = {0,0,1};
+        scene.lightColor = {0.7,0.7,0.7};
     }
     if (key == GLFW_KEY_P) {
-        scene.lightColor = {1,0.2,0.2};
+        scene.isRaining = false;
+        scene.lightColor2 = {0,0,0};
+        scene.lightColor = {1,1,1};
     }
 
     if (key == GLFW_KEY_K) {
-        scene.filtr = {
-                {0,0,0},
-                {0,1,0},
-                {0,0,0}
-        };
+        scene.lightColor = {2,2,1.5};
     }
     if (key == GLFW_KEY_L) {
-        scene.filtr = {
-                {-1,-1,-1},
-                {-1,8,-1},
-                {-1,-1,-1}
-        };
+        scene.lightColor = {1,1,1};
     }
 
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
@@ -199,6 +238,15 @@ public:
     if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
         scene.scenar = 2;
         scene.animationstep = 0;
+        scene.lightDirection2 = {1,0,-1};
+        scene.lightColor2 = {1,0,0};
+        initScene();
+    }
+    if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
+        scene.lightDirection = {1,1,-1};
+        scene.lightDirection2 = {1,1,-1};
+        scene.lightColor2 = {0,0,0};
+        scene.scenar = 3;
         initScene();
     }
   }
@@ -274,6 +322,19 @@ public:
 
     if(scene.camera->animstep == 0 && scene.camera->timepassed > 1 && scene.scenar == 1){
         scene.camera->animate(scene.camera->posKeyFrame[0], scene.camera->posKeyFrame[1], scene.camera->backKeyFrame[0], scene.camera->backKeyFrame[1], 10.0f, dt);
+    }
+
+    if(scene.scenar == 2){
+        //std::cout << scene.lightDirection2.x;
+        if(scene.lightanim == 1){
+            scene.lightDirection2.x -= 0.05;
+            if(scene.lightDirection2.x < -5)
+                scene.lightanim = -1;
+        }else{
+            scene.lightDirection2.x += 0.05;
+            if(scene.lightDirection2.x > 5)
+                scene.lightanim = 1;
+        }
     }
 
     // Set gray background
