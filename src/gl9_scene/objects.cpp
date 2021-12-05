@@ -591,6 +591,8 @@ public:
 
     bool splash = false;
 
+    int animstage = 0;
+
     Voda1(){
 
         position = glm::vec3(0,-0.3,0);
@@ -599,6 +601,8 @@ public:
         if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
         if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("mywotah.bmp"));
         if (!mesh) mesh = std::make_unique<ppgso::Mesh>("vodaplane1.obj");
+
+
 
     }
 
@@ -609,7 +613,7 @@ public:
         auto start = scene.objects.begin();
         std::advance(start, 1);
         Object* bobor = start->get();
-        if(bobor->position.y < this->position.y && !splash){
+        if(bobor->position.y < this->position.y && !splash && scene.scenar == 1){
             //position = position = glm::vec3(0,5,0);
             splash = true;
             for(int i = 0; i < 10; i++){
@@ -618,6 +622,163 @@ public:
             }
         }
 
+        if(scene.zaplava){
+            timer += dt;
+            if(timer > 13){
+                if(position.y < 2.5 && animstage == 0){
+                    position.y += dt;
+                }else if(scale.x < 8 && animstage == 1){
+                    scale.x += dt;
+                    scale.z += dt;
+                }else if(position.y > -0.3 && animstage == 2){
+                    position.y -=  dt/3.0f;
+                }else if (animstage < 4){
+                    animstage++;
+                }
+            }
+        }
+
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);
+
+        shader->setUniform("TextureOffset", textureOffset);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class VlnaL: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec2 textureOffset;
+
+    int animstage = 0;
+
+    VlnaL(){
+
+        position = glm::vec3(0,-0.3,0);
+        rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),0);
+        scale *= 2.5f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("mywotah.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("vlnaL2.obj");
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        textureOffset.x -= dt/15;
+
+        if(scene.zaplava){
+            timer += dt;
+            if(timer > 13){
+                if(position.y < 2.5 && animstage == 0){
+                    position.y += dt;
+                }else if(scale.x < 8 && animstage == 1){
+                    scale.x += dt;
+                    scale.z += dt;
+                }else if(position.y > -0.3 && animstage == 2){
+                    position.y -= dt/3.0f;
+                }else if (animstage < 4){
+                    animstage++;
+                }
+            }
+        }
+
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);
+
+        shader->setUniform("TextureOffset", textureOffset);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class VlnaR: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec2 textureOffset;
+
+    int animstage = 0;
+
+    VlnaR(){
+
+        position = glm::vec3(0,-0.3,0);
+        rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),0);
+        scale *= 2.5f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("mywotah.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("vlnaR2.obj");
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        textureOffset.x -= dt/15;
+
+        if(scene.zaplava){
+            timer += dt;
+            if(timer > 13){
+                if(position.y < 2.5 && animstage == 0){
+                    position.y += dt;
+                }else if(scale.x < 8 && animstage == 1){
+                    scale.x += dt/2;
+                    scale.z += dt/2;
+                }else if(position.y > -0.3 && animstage == 2){
+                    position.y -= dt/3.0f;
+                }else if (animstage < 4){
+                    animstage++;
+                }
+            }
+        }
 
         generateModelMatrix();
         return true;
@@ -660,7 +821,7 @@ public:
     glm::vec3 positions[10] = {
             {-20,2.5,20},
             {-22,2.5,12},
-            {-15,2.5,10},
+            {-14,2.5,10},
             {-10,2.5,-5},
             {-16,2.5,0},
             {-20,2.5,-7},
@@ -680,19 +841,28 @@ public:
 
     }
 
+    void animate(Scene &scene, float dt){
+        if(this->position == positions[2] && scene.zaplava == true){
+            if(this->rotation.y > glm::radians(-85.0f))
+                this->rotation.y -= dt/7;
+        }else {
+            if(this->rotation.x < 0.15 && !this->rotLock){
+                this->rotation.x += dt/7;
+            }else {
+                this->rotLock = true;
+            }
+
+            if(this->rotation.x > -0.15 && this->rotLock){
+                this->rotation.x -= dt/7;
+            }else {
+                this->rotLock = false;
+            }
+        }
+    }
+
     bool update(Scene &scene, float dt) override{
 
-        if(this->rotation.x < 0.15 && !this->rotLock){
-            this->rotation.x += dt/7;
-        }else {
-            this->rotLock = true;
-        }
-
-        if(this->rotation.x > -0.15 && this->rotLock){
-            this->rotation.x -= dt/7;
-        }else {
-            this->rotLock = false;
-        }
+        animate(scene, dt);
 
         generateModelMatrix();
         return true;
@@ -819,6 +989,223 @@ public:
         glFrontFace(GL_CCW);
         //glDepthFunc(GL_LEQUAL);
 
+    }
+};
+
+class Car: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    Car(){
+
+        position = glm::vec3(glm::linearRand(4.0f, 8.0f),2.5,glm::linearRand(-1.0f, 0.0f));
+        rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),glm::radians(180.0f));
+        scale *= 3.0f;
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("car.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("car.obj");
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        if(scene.zaplava){
+            timer += dt;
+            if(timer > 20 && position.x < 30){
+                position.x += dt*4;
+            }
+        }
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class Man: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    glm::vec3 posFrames[6] = {
+            {0,0,0},
+            {0,0,8.5},
+            {-7,0,8.5},
+            {0,0,8.5},
+            {0,0,-7},
+            {0,0,8.5}
+    };
+
+    glm::vec3 rotFrames[6] = {
+            {0,0,glm::radians(90.0f)},
+            {0,0,glm::radians(0.0f)},
+            {0,0,glm::radians(0.0f)},
+            {0,0,glm::radians(-90.0f)},
+            {0,0,glm::radians(90.0f)},
+            {0,0,glm::radians(0.0f)}
+    };
+    float timer = 0.0f;
+    float zaplavatimer = 0.0f;
+    float inter = 0.0f;
+    int animstage = 0;
+
+    Man(glm::vec3 carpos){
+
+        modelMatrix = glm::translate(modelMatrix, carpos);
+
+        position = glm::vec3(modelMatrix[3][0] + 4, modelMatrix[3][1],glm::linearRand(modelMatrix[3][2]-2.0f, modelMatrix[3][2]+2.0f));
+        rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),glm::radians(90.0f));
+        scale *= 0.7f;
+
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("asteroid.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("man.obj");
+
+        for(int i = 0; i<6; i++){
+            posFrames[i] += carpos;
+            posFrames[i].x += 4;
+        }
+        posFrames[0] = position;
+    }
+
+    void animate(int p1, int p2, float length, float dt){
+        inter += 1.0f*(dt/length);
+
+        if(inter >= 1){
+            inter = 0;
+            position = posFrames[p2];
+            rotation = rotFrames[p2];
+            animstage++;
+            if(animstage > 4)
+                animstage = 1;
+            return;
+        }
+        rotation = glm::lerp(rotFrames[p1], rotFrames[p2], {inter,inter,inter});
+        position = glm::lerp(posFrames[p1], posFrames[p2], {inter,inter,inter});
+    }
+
+    bool update(Scene &scene, float dt) override{
+        this->timer += dt;
+
+        if(timer > 2 && !scene.zaplava){
+            animate(animstage, animstage+1, 3.0f, dt);
+        }else{
+            if(scene.zaplava){
+                zaplavatimer += dt;
+                if(zaplavatimer > 20 && position.x < 30){
+                    position.x += dt*4;
+                }
+            }
+        }
+
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
+    }
+};
+
+class Sunhat: public Object{
+
+
+public:
+    std::unique_ptr<ppgso::Mesh> mesh;
+    std::unique_ptr<ppgso::Shader> shader;
+    std::unique_ptr<ppgso::Texture> texture;
+
+    Sunhat(glm::vec3 manpos){
+
+        modelMatrix = glm::translate(modelMatrix, manpos);
+
+        position = glm::vec3(modelMatrix[3][0], modelMatrix[3][1] + 4.2,modelMatrix[3][2]);
+        rotation = glm::vec3 (glm::radians(0.0f), glm::radians(0.0f),glm::radians(90.0f));
+        scale *= 0.2f;
+
+        if (!shader) shader = std::make_unique<ppgso::Shader>(diffuse_vert_glsl, diffuse_frag_glsl);
+        if (!texture) texture = std::make_unique<ppgso::Texture>(ppgso::image::loadBMP("sunhat.bmp"));
+        if (!mesh) mesh = std::make_unique<ppgso::Mesh>("sunhat.obj");
+
+    }
+
+    bool update(Scene &scene, float dt) override{
+
+        auto start = scene.objects.begin();
+        std::advance(start, 2);
+        Object* man = start->get();
+
+        this->position = man->position;
+        this->position.y += 4.2;
+
+        this->rotation = man->rotation;
+
+        generateModelMatrix();
+        return true;
+    }
+
+
+    void render(Scene &scene) override {
+        shader->use();
+
+        // Set up light
+        shader->setUniform("LightDirection", scene.lightDirection);
+        shader->setUniform("LightColor", scene.lightColor);
+        shader->setUniform("LightDirection2", scene.lightDirection2);
+        shader->setUniform("LightColor2", scene.lightColor2);
+        shader->setUniform("Filtr", scene.filtr);
+
+        // use camera
+        shader->setUniform("ProjectionMatrix", scene.camera->projectionMatrix);
+        shader->setUniform("ViewMatrix", scene.camera->viewMatrix);
+
+        // render mesh
+        shader->setUniform("ModelMatrix", modelMatrix);
+        shader->setUniform("Texture", *texture);
+        mesh->render();
     }
 };
 

@@ -75,6 +75,8 @@ class Scene {
     glm::vec3 wind = {0, 0, 0};
 
     bool isRaining = false;
+
+    bool zaplava = false;
 };
 
 #endif // _PPGSO_SCENE_H

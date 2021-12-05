@@ -18,13 +18,15 @@ public:
   glm::mat4 viewMatrix;
   glm::mat4 projectionMatrix;
 
-  glm::vec3 posKeyFrame[2] = {
+  glm::vec3 posKeyFrame[3] = {
           {16,24,-28},
-          {6, 10, 5}
+          {6, 10, 5},
+          {0,0,0}
   };
-  glm::vec3 backKeyFrame[2] = {
-          {0.65,0.65,-1},
-          {1.5, 0.7, -1}
+  glm::vec3 backKeyFrame[3] = {
+          {0.65, 0.65, -1},
+          {1.5,  0.7,  -1},
+          {0,0,0}
   };
 
   float inter = 0.0f;

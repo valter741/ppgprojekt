@@ -104,8 +104,25 @@ private:
         auto skybox = std::make_unique<Skybox>();
         scene.objects.push_back(move(skybox));
 
+        auto car = std::make_unique<Car>();
+        glm::vec3 carpos = car->position;
+        scene.objects.push_back(move(car));
+
+        auto man = std::make_unique<Man>(carpos);
+        glm::vec3 manpos = man->position;
+        scene.objects.push_back(move(man));
+
+        auto sunhat = std::make_unique<Sunhat>(manpos);
+        scene.objects.push_back(move(sunhat));
+
         auto voda1 = std::make_unique<Voda1>();
         scene.objects.push_back(move(voda1));
+
+        auto voda2 = std::make_unique<VlnaL>();
+        scene.objects.push_back(move(voda2));
+
+        auto voda3 = std::make_unique<VlnaR>();
+        scene.objects.push_back(move(voda3));
 
         auto koryto1 = std::make_unique<Koryto1>();
         scene.objects.push_back(move(koryto1));
@@ -206,6 +223,9 @@ public:
         scene.camera->back.z = -1;
     }
     if (key == GLFW_KEY_9) {
+        scene.zaplava = true;
+    }
+    if (key == GLFW_KEY_9) {
         scene.wind = {-0.01,0,0.04};
     }
     if (key == GLFW_KEY_0) {
@@ -243,7 +263,7 @@ public:
         initScene();
     }
     if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
-        scene.lightDirection = {1,1,-1};
+        scene.lightDirection = {1,1,0};
         scene.lightDirection2 = {1,1,-1};
         scene.lightColor2 = {0,0,0};
         scene.scenar = 3;
