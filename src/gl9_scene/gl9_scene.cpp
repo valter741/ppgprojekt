@@ -1,11 +1,3 @@
-// Example gl_scene
-// - Introduces the concept of a dynamic scene of objects
-// - Uses abstract object interface for Update and Render steps
-// - Creates a simple game scene with Player, Asteroid and Space objects
-// - Contains a generator object that does not render but adds Asteroids to the scene
-// - Some objects use shared resources and all object deallocations are handled automatically
-// - Controls: LEFT, RIGHT, "R" to reset, SPACE to fire
-
 #include <iostream>
 #include <map>
 #include <list>
@@ -14,9 +6,6 @@
 
 #include "camera.h"
 #include "scene.h"
-#include "generator.h"
-#include "player.h"
-#include "space.h"
 
 #include "objects.cpp"
 
@@ -27,6 +16,7 @@ const unsigned int SIZE = 900;
  * Custom windows for our simple game
  */
 class SceneWindow : public ppgso::Window {
+
 private:
   Scene scene;
   bool animate = true;
@@ -105,15 +95,18 @@ private:
         scene.objects.push_back(move(skybox));
 
         auto car = std::make_unique<Car>();
-        glm::vec3 carpos = car->position;
+        glm::mat4 carmat = car->modelMatrix;
         scene.objects.push_back(move(car));
 
-        auto man = std::make_unique<Man>(carpos);
-        glm::vec3 manpos = man->position;
+        auto man = std::make_unique<Man>(carmat);
+        glm::mat4 manmat = man->modelMatrix;
         scene.objects.push_back(move(man));
 
-        auto sunhat = std::make_unique<Sunhat>(manpos);
+        auto sunhat = std::make_unique<Sunhat>(manmat);
         scene.objects.push_back(move(sunhat));
+
+        auto shadow = std::make_unique<Shadow>(manmat);
+        scene.objects.push_back(move(shadow));
 
         auto voda1 = std::make_unique<Voda1>();
         scene.objects.push_back(move(voda1));
@@ -222,15 +215,29 @@ public:
       if (scene.camera->back.z == 1)
         scene.camera->back.z = -1;
     }
-    if (key == GLFW_KEY_9) {
+    if (key == GLFW_KEY_8) {
         scene.zaplava = true;
     }
     if (key == GLFW_KEY_9) {
-        scene.wind = {-0.01,0,0.04};
+        scene.wind = {-0.5,0,2};
     }
     if (key == GLFW_KEY_0) {
         scene.wind = {0,0,0};
     }
+      if (key == GLFW_KEY_6) {
+          scene.filtr = {
+                  {-1,-1,-1},
+                  {-1,8,-1},
+                  {-1,-1,-1}
+          };
+      }
+      if (key == GLFW_KEY_7) {
+          scene.filtr = {
+                  {0,0,0},
+                  {0,1,0},
+                  {0,0,0}
+          };
+      }
 
     if (key == GLFW_KEY_O) {
         scene.isRaining = true;
@@ -251,23 +258,29 @@ public:
     }
 
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
+
         scene.scenar = 1;
         scene.animationstep = 0;
         initScene();
+        scene.camera->animstep = 0;
     }
     if (key == GLFW_KEY_F2 && action == GLFW_PRESS) {
+
         scene.scenar = 2;
         scene.animationstep = 0;
         scene.lightDirection2 = {1,0,-1};
         scene.lightColor2 = {1,0,0};
         initScene();
+        scene.camera->animstep = 0;
     }
     if (key == GLFW_KEY_F3 && action == GLFW_PRESS) {
+
         scene.lightDirection = {1,1,0};
         scene.lightDirection2 = {1,1,-1};
         scene.lightColor2 = {0,0,0};
         scene.scenar = 3;
         initScene();
+        scene.camera->animstep = 3;
     }
   }
 
@@ -341,7 +354,12 @@ public:
     time = (float) glfwGetTime();
 
     if(scene.camera->animstep == 0 && scene.camera->timepassed > 1 && scene.scenar == 1){
-        scene.camera->animate(scene.camera->posKeyFrame[0], scene.camera->posKeyFrame[1], scene.camera->backKeyFrame[0], scene.camera->backKeyFrame[1], 10.0f, dt);
+        scene.camera->animate(scene.camera->posKeyFrame[0], scene.camera->posKeyFrame[1], scene.camera->backKeyFrame[0], scene.camera->backKeyFrame[1], scene.camera->timeFrame[0], dt);
+    }
+    //std::cout << scene.camera->animstep << " " <<  scene.camera->timepassed << " " <<  scene.scenar << "\n";
+      if(scene.camera->animstep >= 3 && scene.camera->timepassed > 1 && scene.scenar == 3 && scene.camera->animstep <= 6){
+        //std::cout << "here";
+        scene.camera->animate(scene.camera->posKeyFrame[scene.camera->animstep], scene.camera->posKeyFrame[scene.camera->animstep+1], scene.camera->backKeyFrame[scene.camera->animstep], scene.camera->backKeyFrame[scene.camera->animstep+1], scene.camera->timeFrame[scene.camera->animstep], dt);
     }
 
     if(scene.scenar == 2){

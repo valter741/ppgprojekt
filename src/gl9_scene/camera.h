@@ -18,16 +18,28 @@ public:
   glm::mat4 viewMatrix;
   glm::mat4 projectionMatrix;
 
-  glm::vec3 posKeyFrame[3] = {
+  glm::vec3 posKeyFrame[8] = {
           {16,24,-28},
           {6, 10, 5},
-          {0,0,0}
+          {0,0,0},
+          {28,8,-2},
+          {18,8,10},
+          {2,8,20},
+          {17,8,20},
+          {16,24,-28}
   };
-  glm::vec3 backKeyFrame[3] = {
+  glm::vec3 backKeyFrame[8] = {
           {0.65, 0.65, -1},
           {1.5,  0.7,  -1},
-          {0,0,0}
+          {0,0,0},
+          {5.6,0.25,-1},
+          {1.39,0.3,1},
+          {1.35,0.3,1},
+          {1.35,0.3,1},
+          {0.65, 0.65, -1}
   };
+
+  float timeFrame[8] = {10.0f, 0, 0, 15.0f, 15.0f, 15.0f, 15.0f, 0};
 
   float inter = 0.0f;
   float timepassed = 0.0f;

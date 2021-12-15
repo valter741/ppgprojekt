@@ -60,5 +60,8 @@ protected:
    * Generate modelMatrix from position, rotation and scale
    */
   void generateModelMatrix();
+
+
+  glm::mat4 returnModelMatrix(glm::vec3 pos, glm::vec3 rot, glm::vec3 sc);
 };
 
